@@ -79,7 +79,6 @@ button:hover {
   font-size: 0.75rem;
 }
 
-
 #cart {
   list-style: none;
   padding: 0;
@@ -88,6 +87,7 @@ button:hover {
 
 .cart-item {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   background: #f2f2f2;
@@ -97,7 +97,36 @@ button:hover {
 }
 
 .cart-item span {
-  flex: 1;
+  flex: 1 1 60%;
+  margin-right: 10px;
+}
+
+.cart-item button {
+  margin-left: 5px;
+  margin-top: 5px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+.cart-item button:nth-child(2) {
+  background-color: #007bff; 
+}
+.cart-item button:nth-child(2):hover {
+  background-color: #0069d9;
+}
+
+.cart-item button:nth-child(3) {
+  background-color: #28a745; 
+}
+.cart-item button:nth-child(3):hover {
+  background-color: #218838;
+}
+
+.cart-item button:nth-child(4) {
+  background-color: #dc3545; 
+}
+.cart-item button:nth-child(4):hover {
+  background-color: #c82333;
 }
 
 #payment-section {
@@ -122,9 +151,19 @@ button:hover {
   #product-container button {
     width: 100%;
   }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cart-item span,
+  .cart-item button {
+    width: 100%;
+    margin-top: 5px;
+  }
 }
 
-/* Animation */
 @keyframes bounce {
   0%   { transform: scale(1); }
   50%  { transform: scale(1.3); }
