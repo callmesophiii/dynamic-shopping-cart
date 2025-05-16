@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,46 +8,49 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-  <h1>Dynamic Shopping Cart
-    <span class="icon-wrapper" title="Save Cart" style="cursor: pointer; margin-left: 10px;">
-     <i class="bi bi-cart-check" id="save-cart-icon"></i>
-  <span class="badge" id="cart-count">0</span>
-</span>
+  <div class="container">
+    <h1>
+      Dynamic Shopping Cart
+      <span class="icon-wrapper" title="Save Cart">
+        <i class="bi bi-cart-check" id="save-cart-icon"></i>
+        <span class="badge" id="cart-count">0</span>
+      </span>
+    </h1>
 
-  </h1>
-  <div id="product-container">
-    <input type="text" id="product-name" placeholder="Product Name">
-    <input type="number" id="product-price" placeholder="Product Price">
-    <button id="add-product">Add Product</button>
+    <div id="product-container">
+      <input type="text" id="product-name" placeholder="Product Name">
+      <input type="number" id="product-price" placeholder="Product Price">
+      <button id="add-product">Add Product</button>
+    </div>
+
+    <ul id="cart"></ul>
+
+    <h3>Total: $<span id="total-price">0.00</span></h3>
+    <button id="checkout-btn">Checkout</button>
+
+    <div id="payment-section" style="display: none;">
+      <h3>Select Payment Method:</h3>
+      <label><input type="radio" name="payment" value="credit" checked> Credit Card</label><br>
+      <label><input type="radio" name="payment" value="paypal"> PayPal</label><br>
+      <label><input type="radio" name="payment" value="cash"> Cash on Delivery</label><br>
+
+      <div id="credit-form" class="payment-form">
+        <h4>Credit Card Info</h4>
+        <input type="text" id="cc-number" placeholder="Card Number"><br>
+        <input type="text" id="cc-expiry" placeholder="MM/YY"><br>
+        <input type="text" id="cc-cvv" placeholder="CVV"><br>
+      </div>
+
+      <div id="paypal-form" class="payment-form" style="display: none;">
+        <h4>PayPal Login</h4>
+        <input type="email" id="paypal-email" placeholder="Email"><br>
+        <input type="password" id="paypal-password" placeholder="Password">
+      </div>
+
+      <br>
+      <button id="confirm-payment">Confirm Payment</button>
+    </div>
   </div>
-  <ul id="cart"></ul>
-  <h3>Total: $<span id="total-price">0</span></h3>
-  
-  <button id="checkout-btn">Checkout</button>
-
-<div id="payment-section" style="display: none; margin-top: 20px;">
-  <h3>Select Payment Method:</h3>
-
-  <label><input type="radio" name="payment" value="credit" checked> Credit Card</label><br>
-  <label><input type="radio" name="payment" value="paypal"> PayPal</label><br>
-  <label><input type="radio" name="payment" value="cash"> Cash on Delivery</label><br>
-
-  <div id="credit-form" class="payment-form">
-    <h4>Credit Card Info</h4>
-    <input type="text" id="cc-number" placeholder="Card Number"><br>
-    <input type="text" id="cc-expiry" placeholder="MM/YY"><br>
-    <input type="text" id="cc-cvv" placeholder="CVV"><br>
-  </div>
-
-  <div id="paypal-form" class="payment-form" style="display: none;">
-    <h4>PayPal Login</h4>
-    <input type="email" id="paypal-email" placeholder="Email"><br>
-    <input type="password" id="paypal-password" placeholder="Password">
-  </div>
-
-  <br>
-  <button id="confirm-payment">Confirm Payment</button>
-</div>
 
   <script src="script.js"></script>
 </body>
