@@ -12,64 +12,119 @@ const saveCartIcon = document.getElementById('save-cart-icon');
 const cartCount = document.getElementById('cart-count');
 
 let totalPrice = 0;
+let cartItems = {};
 
-// Update total price display
-function updateTotalPrice(amount) {
-  totalPrice += amount;
+function updateTotal() {
+  totalPrice = Object.values(cartItems).reduce((sum, item) => sum + item.price * item.quantity, 0);
   totalPriceSpan.textContent = totalPrice.toFixed(2);
 }
 
-// Function to remove an item
-function removeItem(event) {
-  const item = event.target.closest('li');
-  const price = parseFloat(item.dataset.price);
-  updateTotalPrice(-price);
-  item.remove();
-  cartCount.textContent = Math.max(0, parseInt(cartCount.textContent) - 1);
+function updateCartCount() {
+  const count = Object.values(cartItems).reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = count;
 }
 
-// Add item
+function renderCart() {
+  cart.innerHTML = '';
+
+  Object.entries(cartItems).forEach(([name, item]) => {
+    const li = document.createElement('li');
+    li.className = 'cart-item';
+
+    li.innerHTML = `
+      <span>${name} - $${item.price.toFixed(2)} x ${item.quantity}</span>
+      <div>
+        <button class="decrease">−</button>
+        <button class="increase">+</button>
+        <button class="remove">Remove</button>
+      </div>
+    `;
+
+    li.querySelector('.increase').onclick = () => {
+      item.quantity++;
+      updateCart();
+    };
+
+    li.querySelector('.decrease').onclick = () => {
+      if (item.quantity > 1) {
+        item.quantity--;
+      } else {
+        delete cartItems[name];
+      }
+      updateCart();
+    };
+
+    li.querySelector('.remove').onclick = () => {
+      delete cartItems[name];
+      updateCart();
+    };
+
+    cart.appendChild(li);
+  });
+
+  updateTotal();
+  updateCartCount();
+}
+
+function updateCart() {
+  renderCart();
+  saveCart();
+}
+
 function addProduct() {
   const name = productNameInput.value.trim();
   const price = parseFloat(productPriceInput.value);
-  cartCount.textContent = parseInt(cartCount.textContent) + 1;
 
-  // Validate input
   if (!name || isNaN(price) || price <= 0) {
-    alert("Please enter a valid product name and a price greater than 0.");
+    alert('Please enter a valid product name and price.');
     return;
   }
 
-  // Create cart item
-  const listItem = document.createElement('li');
-  listItem.className = 'cart-item';
-  listItem.dataset.price = price;
+  if (cartItems[name]) {
+    cartItems[name].quantity++;
+  } else {
+    cartItems[name] = { price, quantity: 1 };
+  }
 
-  listItem.innerHTML = `
-    <span>${name} - $${price.toFixed(2)}</span>
-    <button>Remove</button>
-  `;
+  updateCart();
 
-  // Attach event
-  listItem.querySelector('button').addEventListener('click', removeItem);
-
-  // Add to cart
-  cart.appendChild(listItem);
-
-  // Total price
-  updateTotalPrice(price);
-
-  // Clear inputs
   productNameInput.value = '';
   productPriceInput.value = '';
 }
 
-// Add item on button click
-addProductButton.addEventListener('click', addProduct);
+function saveCart() {
+  localStorage.setItem('cartItems', JSON.stringify(cartItems));
+}
 
-// Show payment section on checkout
+function loadCart() {
+  const saved = localStorage.getItem('cartItems');
+  if (saved) {
+    cartItems = JSON.parse(saved);
+    updateCart();
+  }
+}
+
+function showSaveFeedback() {
+  saveCartIcon.classList.replace('bi-cart-check', 'bi-check-circle');
+  setTimeout(() => {
+    saveCartIcon.classList.replace('bi-check-circle', 'bi-cart-check');
+  }, 1500);
+}
+
+function showError(message) {
+  alert(message);
+}
+
+// Event Listeners
+addProductButton.addEventListener('click', addProduct);
+productPriceInput.addEventListener('keyup', e => e.key === 'Enter' && addProduct());
+saveCartIcon.addEventListener('click', () => {
+  saveCart();
+  showSaveFeedback();
+});
+
 checkoutBtn.addEventListener('click', () => {
-  if (cart.children.length === 0) {
+  if (Object.keys(cartItems).length === 0) {
     showError('Your cart is empty.');
     return;
   }
@@ -77,85 +132,41 @@ checkoutBtn.addEventListener('click', () => {
   checkoutBtn.style.display = 'none';
 });
 
-// Confirm payment selection
-confirmPaymentBtn.addEventListener('click', () => {
-  const method = document.querySelector('input[name="payment"]:checked').value;
-  alert(`Payment confirmed using: ${method.toUpperCase()}`);
-
-  // Clear cart & reset
-  cart.innerHTML = '';
-  total = 0;
-  totalDisplay.textContent = '0.00';
-  paymentSection.style.display = 'none';
-  checkoutBtn.style.display = 'inline-block';
-  saveCart();
-});
-
-// Listen for payment method change
 document.querySelectorAll('input[name="payment"]').forEach(radio => {
-  radio.addEventListener('change', (e) => {
+  radio.addEventListener('change', e => {
     const method = e.target.value;
     creditForm.style.display = method === 'credit' ? 'block' : 'none';
     paypalForm.style.display = method === 'paypal' ? 'block' : 'none';
   });
 });
 
-// Confirm Payment Handler
 confirmPaymentBtn.addEventListener('click', () => {
   const method = document.querySelector('input[name="payment"]:checked').value;
 
-  // Validate mock form fields
   if (method === 'credit') {
     const ccNum = document.getElementById('cc-number').value.trim();
     const expiry = document.getElementById('cc-expiry').value.trim();
     const cvv = document.getElementById('cc-cvv').value.trim();
     if (!ccNum || !expiry || !cvv) {
-      showError('Please fill out all credit card fields.');
-      return;
+      return showError('Please fill out all credit card fields.');
     }
   }
 
   if (method === 'paypal') {
     const email = document.getElementById('paypal-email').value.trim();
     if (!email) {
-      showError('Please enter your PayPal email.');
-      return;
+      return showError('Please enter your PayPal email.');
     }
   }
 
   alert(`Payment confirmed using: ${method.toUpperCase()}`);
 
-  // Reset cart
-  cart.innerHTML = '';
-  total = 0;
-  totalDisplay.textContent = '0.00';
+  cartItems = {};
+  updateCart();
+
   paymentSection.style.display = 'none';
   checkoutBtn.style.display = 'inline-block';
-  saveCart();
 });
 
-// Save cart
-saveCartIcon.addEventListener('click', () => {
-  saveCart();
-  showSaveFeedback();
-});
-function saveCart() {
-  localStorage.setItem('cartHTML', cart.innerHTML);
-  localStorage.setItem('total', total.toFixed(2));
-}
-function showSaveFeedback() {
-  saveCartIcon.classList.remove('bi-cart-check');
-  saveCartIcon.classList.add('bi-check-circle');
-
-  setTimeout(() => {
-    saveCartIcon.classList.remove('bi-check-circle');
-    saveCartIcon.classList.add('bi-cart-check');
-  }, 1500);
-}
-
-// Add product on Enter key press
-productPriceInput.addEventListener('keyup', (e) => {
-  if (e.key === 'Enter') {
-    addProduct();
-  }
-});
+// Initialize
+loadCart();
